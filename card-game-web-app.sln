@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31729.503
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "card-game-web-app", "card-game-web-app.csproj", "{D827C7C8-EB2F-484D-AC22-6A1766D7AB4A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "card-game-web-app", "card-game-web-app.csproj", "{681933EF-0D37-47C4-BE95-198E11FBA764}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D827C7C8-EB2F-484D-AC22-6A1766D7AB4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D827C7C8-EB2F-484D-AC22-6A1766D7AB4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D827C7C8-EB2F-484D-AC22-6A1766D7AB4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D827C7C8-EB2F-484D-AC22-6A1766D7AB4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{681933EF-0D37-47C4-BE95-198E11FBA764}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{681933EF-0D37-47C4-BE95-198E11FBA764}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{681933EF-0D37-47C4-BE95-198E11FBA764}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{681933EF-0D37-47C4-BE95-198E11FBA764}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
