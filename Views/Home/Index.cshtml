@@ -1,8 +1,25 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+	ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<base href="@(Url.Content("~"))" />
+
+<a href="/solitaire" style="color: black">
+	<div class="card">
+		<img src="Assets/solitaire_picture.jpg" alt="Solitaire" style="width: 100%">
+		<div class="container">
+			<h4><b>Solitaire</b></h4>
+			<p>A single player game</p>
+		</div>
+	</div>
+</a>
+
+<a href="/poker" style="color: black">
+	<div class="card">
+		<img src="Assets/poker_picture.jpg" alt="Poker" style="width: 100%">
+		<div class="container">
+			<h4><b>Poker</b></h4>
+			<p>2-14 players per game</p>
+		</div>
+	</div>
+</a>
