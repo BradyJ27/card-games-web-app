@@ -5,4 +5,8 @@
     <RootNamespace>card_game_web_app</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Assets\Cards\" />
+  </ItemGroup>
+
 </Project>
