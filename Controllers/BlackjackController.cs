@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace card_game_web_app.Controllers
 {
-	public class SolitaireController : Controller
+	public class BlackjackController : Controller
 	{
 		public IActionResult Index()
 		{
