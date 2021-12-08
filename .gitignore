@@ -4,8 +4,7 @@
 *.userosscache
 *.sln.docstates
 *.cache
-bin
-obj
+
 
 # Build results
 [Dd]ebug/
