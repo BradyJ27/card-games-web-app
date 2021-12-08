@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31808.319
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "card-games-web-app-blazor", "card-games-web-app-blazor.csproj", "{A01AE33B-4F5D-41E9-9A89-015F6278739F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F50709C5-4435-42E3-923F-BF8A25762949}
+	EndGlobalSection
+EndGlobal

@@ -3,6 +3,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+*.cache
+
 
 # Build results
 [Dd]ebug/
@@ -16,3 +18,4 @@ bld/
 [Bb]in/
 [Oo]bj/
 .vs/
+
