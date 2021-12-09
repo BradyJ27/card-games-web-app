@@ -1,0 +1,20 @@
+﻿@page "/newblackjack"
+@using Controllers.NewBlackjack;
+
+<h3>NewBlackjack</h3>
+<p>@started</p>
+<button @onclick="updateStatus">Start</button>
+
+
+@code {
+
+	public bool started = false;
+
+	public void updateStatus()
+	{
+
+		started = true;
+		//Call start game from the controllers
+		//Also add buttons for hitting and betting
+	}
+}
