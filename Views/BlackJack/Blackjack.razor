@@ -223,7 +223,7 @@
     }
 }
 
-<div class="row">
+<div class="row" style="width: 1500px; height: 190px">
     <div class="col-3">
         <div>
             @{
@@ -245,7 +245,7 @@
         <BlackjackScore State="state" Player="dealer" />
     </div>
 </div>
-<div class="row">
+<div class="row" style="width: 1500px; height: 190px">
     <div class="col-3">
         <BlackjackFunds Funds="player.Funds" Change="player.Change" />
     </div>
@@ -282,7 +282,7 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row" style="width: 1500px; height: 190px">
     <div class="col-3">
         @if (state == GameState.NotStarted || state == GameState.EscortedOut || player.Funds < 10)
         {
