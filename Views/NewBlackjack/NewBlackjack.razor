@@ -1,20 +1,72 @@
 ﻿@page "/newblackjack"
-@using Controllers.NewBlackjack;
+@using BlackjackLibrary.API;
+@using BlackjackLibrary.EventArgs;
+@using BlackjackLibrary.Models;
+@using System;
 
 <h3>NewBlackjack</h3>
 <p>@started</p>
-<button @onclick="updateStatus">Start</button>
+
+
+@* If the game has not started yet, display start button*@
+@if (!isStarted)
+{
+	<button class="btn btn-dark" @onclick="startGame">Start</button>
+}
+else // Display start button
+{
+	<div class="row">
+		<button class="btn btn-dark">10</button>
+		<button class="btn btn-dark">20</button>
+	</div>
+}
+
+<h3>Player Balance</h3>
+<p>@playerBalance</p>
+
+<h2>Player Hand</h2>
+
+@* Print each players hand to screen*@
+@foreach (var a in hand)
+{
+	<p>@a</p>
+}
+<h2>Dealer Hand</h2>
+@foreach (var b in dealerHand)
+{
+	<p>@b</p>
+}
+
+
+
 
 
 @code {
+	private bool isStarted = false;
+	private static BlackjackGame game;
+	private string started = "not";
+	List<string> hand = new List<string>();
+	List<string> dealerHand = new List<string>();
+	private decimal playerBalance = 50;
 
-	public bool started = false;
-
-	public void updateStatus()
+	private void startGame()
 	{
-
-		started = true;
-		//Call start game from the controllers
-		//Also add buttons for hitting and betting
+		isStarted = true;
+		started = $"Start!";
+		hand.Clear();
+		dealerHand.Clear();
+		game = new BlackjackGame(new AiDealer("dealer", 1000), new HumanPlayer("player", 50), 6);
+		// Start round with a bet of 10
+		game.StartRound("10");
+		playerBalance = game.MainPlayer.Balance;
+		// Get hand info and store in a list
+		foreach (var dealCard in game.DealerInfo.Hand)
+		{
+			dealerHand.Add(dealCard.ToString());
+		}
+		foreach (var card in game.MainPlayer.Hand)
+		{
+			hand.Add(card.ToString());
+		}
 	}
 }
