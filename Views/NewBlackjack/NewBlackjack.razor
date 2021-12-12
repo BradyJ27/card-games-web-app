@@ -3,70 +3,120 @@
 @using BlackjackLibrary.EventArgs;
 @using BlackjackLibrary.Models;
 @using System;
+@using Models.Blackjack.Enums;
+@using Controllers.NewBlackjack;
+@inject IJSRuntime jsRuntime
 
-<h3>NewBlackjack</h3>
-<p>@started</p>
+<h3>Blackjack</h3>
 
+<style>
+    .container {
+        position: absolute;
+    }
+
+    .button {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+    }
+</style>
+
+<div class="container">
+    <div class="button">
+        <button type="button" @onclick="NavigateToRules" class="btn btn-primary" target="blank" style="float: right">
+            How to Play
+        </button>
+    </div>
+</div>
+@code {
+
+    public async Task NavigateToRules()
+    {
+        string url = "/blackjackrules";
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+    }
+}
 
 @* If the game has not started yet, display start button*@
-@if (!isStarted)
+@if (Blackjack.gamestate == GameState.NotStarted)
 {
-	<button class="btn btn-dark" @onclick="startGame">Start</button>
+    <p>@Blackjack.startToPlay</p>
+    // <p>@instruction</p>
+    <button class="btn btn-primary" @onclick="Blackjack.Start">Start</button>
 }
-else // Display start button
+else if (Blackjack.gamestate == GameState.Betting)
 {
-	<div class="row">
-		<button class="btn btn-dark">10</button>
-		<button class="btn btn-dark">20</button>
-	</div>
+    <h3>Player Balance</h3>
+    <p>$@Blackjack.playerBalance</p>
+    <p>@Blackjack.betQuestion</p>
+    <div class="row">
+        <button class="btn btn-primary" @onclick="(() => Blackjack.Bet(10))" style="margin:5px">Bet $10</button>
+
+        <button class="btn btn-primary" @onclick="(() => Blackjack.Bet(20))" style="margin:5px">Bet $20</button>
+
+        <button class="btn btn-primary" @onclick="(() => Blackjack.Bet(50))" style="margin:5px">Bet $50</button>
+    </div>
 }
-
-<h3>Player Balance</h3>
-<p>@playerBalance</p>
-
-<h2>Player Hand</h2>
-
-@* Print each players hand to screen*@
-@foreach (var a in hand)
+else if (Blackjack.gamestate == GameState.InProgress)
 {
-	<p>@a</p>
+    <div>
+        <h3>Player Balance</h3>
+        <p>$@Blackjack.playerBalance</p>
+
+        <h2>Player Hand</h2>
+
+        @* Print each players hand to screen*@
+        @foreach (var a in Blackjack.playerHand)
+        {
+            <img src="@a" />
+        }
+        @Blackjack.playerScore
+        @Blackjack.playerState
+        <h2>Dealer Hand</h2>
+        @foreach (var b in Blackjack.dealerHand)
+        {
+            <img src="@b" />
+        }
+        @Blackjack.dealerScore
+    </div>
+    <div class="row">
+        <button class="btn btn-primary" @onclick="(() => Blackjack.PlayerHit())" style="margin:5px">Hit</button>
+        <button class="btn btn-primary" @onclick="(() => Blackjack.PlayerStand())" style="margin:5px">Stand</button>
+    </div>
 }
-<h2>Dealer Hand</h2>
-@foreach (var b in dealerHand)
+else if (Blackjack.gamestate == GameState.Payout)
 {
-	<p>@b</p>
+    <div>
+        <h3>Player Balance</h3>
+        <p>$@Blackjack.playerBalance</p>
+
+        <h2>Player Hand</h2>
+
+        @* Print each players hand to screen*@
+        @foreach (var a in Blackjack.playerHand)
+        {
+            <img src="@a" />
+        }
+        @Blackjack.playerScore
+        @Blackjack.playerState
+        <h2>Dealer Hand</h2>
+        @foreach (var b in Blackjack.dealerHand)
+        {
+            <img src="@b" />
+        }
+        @Blackjack.dealerScore
+
+        <div class="row">
+            <button class="btn btn-primary" @onclick="(() => Blackjack.KeepPlaying())" style="margin:5px">Keep Playing</button>
+            <button class="btn btn-primary" @onclick="(() => Blackjack.Exit())" style="margin:5px">Exit</button>
+        </div>
+    </div>
+    <p>@Blackjack.result</p>
+}
+else if (Blackjack.gamestate == GameState.EndOfGame)
+{
+    <h3>Player Balance</h3>
+    <p>$@Blackjack.playerBalance</p>
+    <p>@Blackjack.result</p>
 }
 
-
-
-
-
-@code {
-	private bool isStarted = false;
-	private static BlackjackGame game;
-	private string started = "not";
-	List<string> hand = new List<string>();
-	List<string> dealerHand = new List<string>();
-	private decimal playerBalance = 50;
-
-	private void startGame()
-	{
-		isStarted = true;
-		started = $"Start!";
-		hand.Clear();
-		dealerHand.Clear();
-		game = new BlackjackGame(new AiDealer("dealer", 1000), new HumanPlayer("player", 50), 6);
-		// Start round with a bet of 10
-		game.StartRound("10");
-		playerBalance = game.MainPlayer.Balance;
-		// Get hand info and store in a list
-		foreach (var dealCard in game.DealerInfo.Hand)
-		{
-			dealerHand.Add(dealCard.ToString());
-		}
-		foreach (var card in game.MainPlayer.Hand)
-		{
-			hand.Add(card.ToString());
-		}
-	}
-}
