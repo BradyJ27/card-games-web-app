@@ -1,0 +1,292 @@
+﻿@page "/poker"
+
+@using Models.Poker;
+@using Models.Poker.Enums;
+@using Views;
+@using Views.Poker.Partials;
+@using card_games_web_app_blazor.Views.Poker.Partials
+
+@inject IJSRuntime jsRuntime
+
+
+<button type="button" @onclick="NavigateToRules" class="btn-dark" target="blank" style="float: right">
+  How-to-Play
+</button>
+
+@code {
+
+    public async Task NavigateToRules()
+    {
+        string url = "/pokerrules";
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+    }
+}
+
+
+@code {
+    Dealer dealer = new Dealer(); //Creating a new Dealer also creates a new, shuffled CardDeck
+    Player player = new Player();
+    Player playertwo = new Player();
+    Player playerthree = new Player();
+    CommunityCards communityCards = new CommunityCards();
+
+
+    GameState state = GameState.NotStarted;
+
+    public async Task InitializeHand()
+    {
+        if (dealer.Deck.Count < 13)
+        {
+            state = GameState.Shuffling;
+            dealer.Deck = new CardDeck();
+            await Delay(1000);
+        }
+
+        state = GameState.Betting;
+    }
+
+    public async Task Bet(decimal amount)
+    {
+        if (player.Funds >= amount && player.Cards.Count == 0)
+        {
+            player.Bet += amount;
+            await Deal();
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && communityCards.Cards.Count != 5)
+        {
+            await DealCommunityCard();
+
+        }
+        else
+        {
+
+            await NewHand();
+            state = GameState.Payout;
+
+        }
+    }
+
+    public async Task Deal()
+    {
+        state = GameState.Dealing;
+        //Deal a card to each player. The dealer's card is not visible.
+        await dealer.DealToPlayer(player);
+        StateHasChanged();
+
+        var playerTwoCardOne = dealer.Deal();
+        playerTwoCardOne.IsVisible = false;
+        await playertwo.AddCard(playerTwoCardOne);
+        StateHasChanged();
+
+        var playerThreeCardOne = dealer.Deal();
+        playerThreeCardOne.IsVisible = false;
+        await playerthree.AddCard(playerThreeCardOne);
+        StateHasChanged();
+
+        await dealer.DealToPlayer(player);
+        StateHasChanged();
+
+        var playerTwoCardTwo = dealer.Deal();
+        playerTwoCardTwo.IsVisible = false;
+        await playertwo.AddCard(playerTwoCardTwo);
+        StateHasChanged();
+
+        var playerThreeCardTwo = dealer.Deal();
+        playerThreeCardOne.IsVisible = false;
+        await playerthree.AddCard(playerThreeCardTwo);
+        StateHasChanged();
+
+
+        state = GameState.InProgress;
+
+
+    }
+
+    public async Task DealCommunityCard()
+    {
+        var communitycard = dealer.Deal();
+        await communityCards.AddCard(communitycard);
+
+        state = GameState.Betting;
+        StateHasChanged();
+
+    }
+
+    public void Fold()
+    {
+        player.HasFolded = true;
+        EndHand();
+    }
+
+    public async Task NewHand()
+    {
+        //Payout the player's bets
+        player.Collect();
+
+        //Clear the hands
+        player.ClearHand();
+        playertwo.ClearHand();
+        playerthree.ClearHand();
+        communityCards.ClearHand();
+
+        //Reset the game area
+        state = GameState.NotStarted;
+
+        
+
+        //Begin a new hand!
+        await InitializeHand();
+    }
+
+    public async Task Delay(int millis)
+    {
+        await Task.Delay(millis);
+        StateHasChanged();
+    }
+
+    
+
+    public void EndHand()
+    {
+        state = GameState.Payout;
+
+
+
+        if (player.HasFolded)
+        {
+            //Player gets their bet back, plus 1.5 * the bet
+            player.Change += player.Bet * 1.5M;
+        }
+        else if (!player.IsBusted && dealer.IsBusted)
+        {
+            //If the player is not busted but the dealer is, the player gets the amount of their bet back, plus the bet again.
+            player.Change += player.Bet;
+        }
+        else if (!dealer.IsBusted && !player.IsBusted && player.Score > dealer.Score)
+        {
+            //This is a "normal" win condition; the player has more than the dealer and neither are busted.
+            player.Change += player.Bet;
+        }
+        else if (!dealer.IsBusted && !player.IsBusted && player.Score == dealer.Score)
+        {
+            //If there's a push, no money changes hands
+        }
+        else //In all other situations, the player loses their bet.
+        {
+            player.Change += player.Bet * -1;
+        }
+
+        //No matter what, the player's bet gets reset
+        player.Bet = 0;
+        
+    }
+
+    
+
+
+}
+
+
+<div class="row">
+    
+    <div class="col-3">
+        <PokerHand Cards="dealer.Cards" />
+    </div>
+    <div class="col-3">
+        <PokerScore State="state" Player="dealer" />
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-3">
+        <PokerFunds Funds="player.Funds" Change="player.Change" />
+    </div>
+    <div class="col-3">
+        @if (state == GameState.Betting)
+        {
+            @if (player.Funds < 10)
+            {
+                <span class="display-3 text-danger">Out of money!</span>
+            }
+            @if (player.Funds >= 10)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+            }
+            @if (player.Funds >= 20)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+            }
+            @if (player.Funds >= 50)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+            }
+        }
+
+        @if (state == GameState.Payout)
+        {
+            <PokerHandResult Player="player" Dealer="dealer" />
+        }
+        @if (state == GameState.Dealing || state == GameState.Shuffling
+        || state == GameState.InProgress)
+        {
+            <PokerMessage State="state" Bet="player.Bet" />
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-3">
+        @if (state == GameState.NotStarted || player.Funds < 10)
+        {
+            <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
+        }
+        @if (state == GameState.InProgress && !player.HasFolded)
+        {
+            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
+            @if (player.Funds < 10)
+            {
+                <span class="display-3 text-danger">Out of money!</span>
+            }
+            @if (player.Funds >= 10)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+            }
+            @if (player.Funds >= 20)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+            }
+            @if (player.Funds >= 50)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+            }
+            //<button class="btn btn-primary" @onclick="(() => Check())">Check</button>
+        }
+       
+        @if (state == GameState.Payout)
+        {
+            <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
+        }
+
+        
+    </div>
+
+    </div>
+@if(communityCards.Cards.Count != 0)
+{
+    
+    <div class="col-4" style="float: right">Community Cards<PokerHand Cards="communityCards.Cards"/></div>
+}
+
+    <div style="position: absolute, center">
+        
+        <PokerHand Cards="player.Cards" />
+    </div>
+
+    <div class="col-3">
+        <PokerScore State="state" Player="player" />
+    </div>
+    
+    
+
+
