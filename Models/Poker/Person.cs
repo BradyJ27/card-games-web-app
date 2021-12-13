@@ -9,24 +9,7 @@ namespace Models.Poker
     {
         public List<Card> Cards { get; set; } = new List<Card>();
 
-        public string ScoreDisplay
-        {
-            get
-            {
-                if (HasNaturalBlackjack && Cards.All(x => x.IsVisible))
-                    return "Blackjack!";
 
-                //We use Visible Score because this display
-                //should only show the Dealer's visible score,
-                //and the Player's visible score and true score
-                //will always be the same value.
-                var score = VisibleScore;
-
-                if (score > 21)
-                    return "Busted!";
-                else return score.ToString();
-            }
-        }
 
         public async Task AddCard(Card card)
         {
@@ -85,17 +68,13 @@ namespace Models.Poker
             return cards.Sum(x => x.Score);
         }
 
-        public bool IsBusted => Score > 21;
+        public bool HasFolded { get; set; }
 
         public void ClearHand()
         {
             Cards.Clear();
         }
 
-        public bool HasNaturalBlackjack =>
-            Cards.Count == 2
-            && Score == 21
-            && Cards.Any(x => x.Value == CardValue.Ace)
-            && Cards.Any(x => x.IsTenCard);
-        }
+
+    }
 }

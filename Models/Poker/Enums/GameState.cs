@@ -13,6 +13,7 @@ namespace Models.Poker.Enums
         InProgress, //After the initial deal, but before bets are paid out or collected.
         Payout, //After the hand is over, during while bets are paid out or collected.
         Shuffling, //While the dealer is shuffling the cards
-        CommunityDeal //While dealer is adding cards to the community cards.
+        CommunityDeal, //While dealer is adding cards to the community cards.
+        ShowDown,
     }
 }

@@ -6,18 +6,14 @@
 
     [Parameter]
     public Person Dealer { get; set; }
-}
 
-@if (Player.HasNaturalBlackjack
-     && (Player.Score > Dealer.Score || Dealer.IsBusted))
+    }
+
+@if (Player.HasFolded)
 {
-    <h1 class="display-3 text-success">Blackjack!</h1>
+    <h1 class="display-3" style="color: gray">Fold!</h1>
 }
-else if (Player.IsBusted)
-{
-    <h1 class="display-3 text-danger">Busted...</h1>
-}
-else if (Dealer.IsBusted || Player.Score > Dealer.Score)
+else if (Player.Score > Dealer.Score)
 {
     <h1 class="display-3 text-success">Win!</h1>
 }

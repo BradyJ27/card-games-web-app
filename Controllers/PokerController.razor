@@ -9,27 +9,19 @@
 @inject IJSRuntime jsRuntime
 
 
-<button type="button" @onclick="NavigateToRules" class="btn-dark" target="blank" style="float: right">
-  How-to-Play
-</button>
-
-@code {
-
-    public async Task NavigateToRules()
-    {
-        string url = "/pokerrules";
-        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
-    }
-}
-
-
 @code {
     Dealer dealer = new Dealer(); //Creating a new Dealer also creates a new, shuffled CardDeck
     Player player = new Player();
     Player playertwo = new Player();
     Player playerthree = new Player();
     CommunityCards communityCards = new CommunityCards();
+    
 
+    public async Task NavigateToRules()
+    {
+        string url = "/pokerrules";
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+    }
 
     GameState state = GameState.NotStarted;
 
@@ -55,14 +47,11 @@
         else if(player.Funds >= amount && player.Cards.Count > 0 && communityCards.Cards.Count != 5)
         {
             await DealCommunityCard();
-
         }
         else
-        {
-
-            await NewHand();
-            state = GameState.Payout;
-
+        {  
+            EndHand();
+            //await NewHand();
         }
     }
 
@@ -92,7 +81,7 @@
         StateHasChanged();
 
         var playerThreeCardTwo = dealer.Deal();
-        playerThreeCardOne.IsVisible = false;
+        playerThreeCardTwo.IsVisible = false;
         await playerthree.AddCard(playerThreeCardTwo);
         StateHasChanged();
 
@@ -114,7 +103,7 @@
 
     public void Fold()
     {
-        player.HasFolded = true;
+        player.HasFolded = true ;
         EndHand();
     }
 
@@ -148,29 +137,32 @@
 
     public void EndHand()
     {
-        state = GameState.Payout;
+        state = GameState.ShowDown;
+
+        
+        Hand playerhand = new Hand(player.Cards, communityCards.Cards);
+        Hand playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
+        Hand playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
 
 
 
         if (player.HasFolded)
         {
-            //Player gets their bet back, plus 1.5 * the bet
-            player.Change += player.Bet * 1.5M;
+            //Player loses their bet
+            player.Change -= player.Bet;
+            
         }
-        else if (!player.IsBusted && dealer.IsBusted)
+        else if ((playerhand.value > playertwohand.value) &&  (playerhand.value > playerthreehand.value))
         {
             //If the player is not busted but the dealer is, the player gets the amount of their bet back, plus the bet again.
             player.Change += player.Bet;
         }
-        else if (!dealer.IsBusted && !player.IsBusted && player.Score > dealer.Score)
+        else if (playerhand.value < playertwohand.value && playerhand.value < playerthreehand.value)
         {
             //This is a "normal" win condition; the player has more than the dealer and neither are busted.
-            player.Change += player.Bet;
+            playertwo.Change -= player.Bet;
         }
-        else if (!dealer.IsBusted && !player.IsBusted && player.Score == dealer.Score)
-        {
-            //If there's a push, no money changes hands
-        }
+        
         else //In all other situations, the player loses their bet.
         {
             player.Change += player.Bet * -1;
@@ -180,34 +172,51 @@
         player.Bet = 0;
         
     }
-
-    
-
-
 }
 
 
-<div class="row">
-    
-    <div class="col-3">
-        <PokerHand Cards="dealer.Cards" />
-    </div>
-    <div class="col-3">
-        <PokerScore State="state" Player="dealer" />
-    </div>
-</div>
-
-
-<div class="row">
-    <div class="col-3">
+<h1 style="top: 0px; text-align: center" >Texas Holdem</h1>
+<body>
+     <div style="float: right">
         <PokerFunds Funds="player.Funds" Change="player.Change" />
     </div>
-    <div class="col-3">
+
+
+    
+        @if(communityCards.Cards.Count != 0)
+        {
+    
+            <div ><strong>Community Cards
+                </strong>
+            </div>
+            
+            <div>
+                <PokerHand Cards="communityCards.Cards"/>
+            </div>
+        }
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <div class="button-holder">
         @if (state == GameState.Betting)
         {
             @if (player.Funds < 10)
             {
-                <span class="display-3 text-danger">Out of money!</span>
+                <span class="display-3 text-danger; inherit-button-holder">Out of money!</span>
             }
             @if (player.Funds >= 10)
             {
@@ -222,7 +231,9 @@
                 <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
             }
         }
+        </div>
 
+        <div>
         @if (state == GameState.Payout)
         {
             <PokerHandResult Player="player" Dealer="dealer" />
@@ -233,10 +244,11 @@
             <PokerMessage State="state" Bet="player.Bet" />
         }
     </div>
-</div>
 
-<div class="row">
-    <div class="col-3">
+    
+
+
+    <div>
         @if (state == GameState.NotStarted || player.Funds < 10)
         {
             <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
@@ -266,26 +278,51 @@
         @if (state == GameState.Payout)
         {
             <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
+            
         }
-
-        
     </div>
 
-    </div>
-@if(communityCards.Cards.Count != 0)
-{
-    
-    <div class="col-4" style="float: right">Community Cards<PokerHand Cards="communityCards.Cards"/></div>
-}
-
-    <div style="position: absolute, center">
-        
-        <PokerHand Cards="player.Cards" />
-    </div>
-
-    <div class="col-3">
+    <div class="row">
+    <div class="column" style="padding-right: 350px">
         <PokerScore State="state" Player="player" />
+        
+       <PokerHand Cards="player.Cards" />
+    
     </div>
+
+    <div class="column" style="padding-right: 350px">
+        <PokerHand Cards = "playertwo.Cards" />
+    </div>
+
+    <div class="column">
+        <PokerHand Cards = "playerthree.Cards" />
+    </div>
+         
+    </div>
+
+
+    
+
+
+    @if(state == GameState.ShowDown)
+    {
+        for(int i=0; i<2; i++)
+            {
+                playertwo.Cards[i].IsVisible = true;
+                playerthree.Cards[i].IsVisible = true;
+            }
+            
+          StateHasChanged();
+        state = GameState.Payout;
+    }
+
+
+</body>
+   
+    
+    
+
+
     
     
 

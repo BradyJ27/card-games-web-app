@@ -7,7 +7,6 @@ namespace Models.Common.Enums
 {
     public enum CardValue
     {
-        Ace = 1,
         Two = 2,
         Three = 3,
         Four = 4,
@@ -19,6 +18,7 @@ namespace Models.Common.Enums
         Ten = 10,
         Jack = 11,
         Queen = 12,
-        King = 13
+        King = 13,
+        Ace = 14,
     }
 }

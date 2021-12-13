@@ -13,7 +13,7 @@ namespace Models.Poker
 
         public decimal Change { get; set; }
 
-        public bool HasFolded { get; set; }
+       
 
 
         public void Collect()
