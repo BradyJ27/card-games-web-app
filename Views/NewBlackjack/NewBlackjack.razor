@@ -71,7 +71,6 @@ else if (Blackjack.gamestate == GameState.InProgress)
             <img src="@a" />
         }
         @Blackjack.playerScore
-        @Blackjack.playerState
         <h2>Dealer Hand</h2>
         @foreach (var b in Blackjack.dealerHand)
         {
@@ -98,7 +97,6 @@ else if (Blackjack.gamestate == GameState.Payout)
             <img src="@a" />
         }
         @Blackjack.playerScore
-        @Blackjack.playerState
         <h2>Dealer Hand</h2>
         @foreach (var b in Blackjack.dealerHand)
         {
