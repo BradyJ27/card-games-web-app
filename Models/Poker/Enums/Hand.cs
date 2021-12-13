@@ -64,38 +64,41 @@ namespace Models.Poker.Enums
                 {
                     previousCard = card;
                 }
-
-                if(previousCard.Value == card.Value - 1)
+                else
                 {
-                    straightcounter++;
+                    if (previousCard.Value == card.Value - 1)
+                    {
+                        straightcounter++;
+                    }
+
+                    if (previousCard.Value == card.Value)
+                    {
+                        paircounter++;
+                    }
+
+                    if (previousCard.Value != card.Value && paircounter == 2)
+                    {
+                        possibletwopairs = true;
+                        paircounter = 0;
+                    }
+
+                    if (previousCard.Suit == card.Suit)
+                    {
+                        flushcounter++;
+                    }
+
+                    if (card.Value == Common.Enums.CardValue.Jack)
+                    {
+                        jack = true;
+                    }
+
+                    if (card.Value == Common.Enums.CardValue.Ace)
+                    {
+                        ace = true;
+                    }
+
                 }
 
-                if (previousCard.Value == card.Value)
-                {
-                    paircounter++;
-                }
-
-                if (previousCard.Value != card.Value && paircounter == 2)
-                {
-                    possibletwopairs = true;
-                    paircounter = 0;
-                }
-
-                if (previousCard.Suit == card.Suit)
-                {
-                    flushcounter++;
-                }
-
-                if(card.Value == Common.Enums.CardValue.Jack)
-                {
-                    jack = true;
-                }
-
-                if(card.Value == Common.Enums.CardValue.Ace)
-                {
-                    ace = true;
-                }
-                
             }
 
             if(paircounter < 2 && straightcounter < 5 && flushcounter < 5)

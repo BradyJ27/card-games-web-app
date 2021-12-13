@@ -1,27 +1,37 @@
 ﻿@using Models.Poker;
+@using Models.Poker.Enums
 
 @code {
     [Parameter]
-    public Person Player { get; set; }
+    public Hand PlayerHand { get; set; }
 
     [Parameter]
-    public Person Dealer { get; set; }
+    public Hand PlayerTwoHand { get; set; }
 
+    [Parameter]
+    public Hand PlayerThreeHand { get; set; }
+
+    [Parameter]
+    public Person Player { get; set; }
     }
 
 @if (Player.HasFolded)
 {
     <h1 class="display-3" style="color: gray">Fold!</h1>
 }
-else if (Player.Score > Dealer.Score)
+else if (PlayerHand.value > PlayerTwoHand.value && PlayerHand.value > PlayerThreeHand.value)
 {
     <h1 class="display-3 text-success">Win!</h1>
 }
-else if (Dealer.Score > Player.Score)
+else if (PlayerHand.value < PlayerTwoHand.value && PlayerHand.value < PlayerThreeHand.value)
 {
     <h1 class="display-3 text-danger">Lose...</h1>
 }
-else if (Player.Score == Dealer.Score)
+else if (PlayerHand.value == PlayerTwoHand.value && PlayerHand.value == PlayerThreeHand.value)
 {
     <h1 class="display-3 text-info">Push</h1>
+}
+else
+{
+    <h1 class="display-3 text-info">Lose</h1>
 }

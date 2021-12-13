@@ -15,7 +15,12 @@
     Player playertwo = new Player();
     Player playerthree = new Player();
     CommunityCards communityCards = new CommunityCards();
-    
+    Hand playerhand;
+    Hand playertwohand;
+    Hand playerthreehand;
+
+
+
 
     public async Task NavigateToRules()
     {
@@ -140,9 +145,9 @@
         state = GameState.ShowDown;
 
         
-        Hand playerhand = new Hand(player.Cards, communityCards.Cards);
-        Hand playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
-        Hand playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
+        playerhand = new Hand(player.Cards, communityCards.Cards);
+        playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
+        playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
 
 
 
@@ -211,6 +216,7 @@
     <br />
     <br />
     <br />
+
     <div class="button-holder">
         @if (state == GameState.Betting)
         {
@@ -236,7 +242,7 @@
         <div>
         @if (state == GameState.Payout)
         {
-            <PokerHandResult Player="player" Dealer="dealer" />
+            <PokerHandResult PlayerHand="playerhand" PlayerTwoHand="playertwohand" PlayerThreeHand="playerthreehand" Player="player" />
         }
         @if (state == GameState.Dealing || state == GameState.Shuffling
         || state == GameState.InProgress)
