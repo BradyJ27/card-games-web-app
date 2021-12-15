@@ -119,12 +119,38 @@
 
     }
 
+    public bool HasPairInOwnHand(Player player)
+    {
+        if(player.Cards[0].Value == player.Cards[1].Value)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+
+        }
+    }
+
+    public Card HighCardInOwnHand(Player player)
+    {
+        if(player.Cards[0].Value > player.Cards[1].Value)
+        {
+            return player.Cards[0];
+
+        }
+        else
+        {
+            return player.Cards[1];
+        }
+    }
+
     public async Task DealCommunityCard()
     {
         var communitycard = dealer.Deal();
         await communityCards.AddCard(communitycard);
 
-        state = GameState.Betting;
+        
         StateHasChanged();
 
     }
@@ -272,6 +298,7 @@
     
 
 
+
         <div>
             @if (state == GameState.NotStarted || player.Funds < 10)
             {
@@ -305,7 +332,6 @@
             @if (state == GameState.Payout)
             {
                 <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
-
             }
         </div>
 
