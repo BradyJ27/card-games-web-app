@@ -7,7 +7,7 @@ namespace Models.Poker
 {
     public class Player : Person
     {
-        public decimal Funds { get; set; } = 200M;
+        public decimal Funds { get; set; } = 1000M;
 
         public decimal Bet { get; set; }
 
