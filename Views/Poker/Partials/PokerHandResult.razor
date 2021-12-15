@@ -53,11 +53,25 @@ else if (PlayerHand.value < PlayerTwoHand.value && PlayerHand.value < PlayerThre
 {
     <h1 class="display-3 text-danger">Lose...</h1>
 }
+else if (IsTie())
+{
+    if(PlayerHand.pairValue > PlayerTwoHand.pairValue && PlayerHand.pairValue > PlayerThreeHand.pairValue)
+    {
+        <h1 class="display-3 text-success">Win!</h1>
+    }
+    else
+    {
+        <h1 class="display-3 text-danger">Lose...</h1>
+    }
+}
 else if (IsTie() && (HighCardInOwnHand(PlayerHand).Value > HighCardInOwnHand(PlayerTwoHand).Value && HighCardInOwnHand(PlayerHand).Value > HighCardInOwnHand(PlayerThreeHand).Value))
 {
     <h1 class="display-3 text-success">Win!</h1>
 }
+
 else
 {
     <h1 class="display-3 text-info">Lose</h1>
 }
+
+<h1 class="display-3 text-black-50">@PlayerHand.value</h1>

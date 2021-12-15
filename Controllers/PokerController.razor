@@ -21,7 +21,7 @@
     Hand playerhand;
     Hand playertwohand;
     Hand playerthreehand;
-
+    GameState state = GameState.NotStarted;
 
 
 
@@ -31,10 +31,12 @@
         await jsRuntime.InvokeAsync<object>("open", url, "_blank");
     }
 
-    GameState state = GameState.NotStarted;
+
 
     public async Task InitializeHand()
     {
+        
+
         if (dealer.Deck.Count < 13)
         {
             state = GameState.Shuffling;
@@ -119,26 +121,30 @@
 
     }
 
-    
+
 
     public async Task DealCommunityCard()
     {
         var communitycard = dealer.Deal();
         await communityCards.AddCard(communitycard);
 
-        
+
         StateHasChanged();
 
     }
 
-    public void Fold()
+    public async Task Fold()
     {
-        player.HasFolded = true ;
+        player.HasFolded = true;
         EndHand();
+        state = GameState.Payout;
+        
+
     }
 
     public async Task NewHand()
     {
+        player.HasFolded = false;
         //Payout the player's bets
         player.Collect();
 
@@ -200,7 +206,7 @@
 
         //No matter what, the player's bet gets reset
         player.Bet = 0;
-
+        
     }
 }
 
@@ -239,7 +245,7 @@
     <div class="button-holder">
         @if (state == GameState.Betting)
         {
-            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
+           
             @if (player.Funds < 10)
             {
                 <span class="display-3 text-danger; inherit-button-holder">Out of money!</span>

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Models.Common.Enums;
+using System.Collections.Generic;
 
 namespace Models.Poker
 {
@@ -15,6 +16,7 @@ namespace Models.Poker
 
         public List<Card> hand { get; set; } = new List<Card>();
         public HandType value { get; set; }
+        public CardValue pairValue { get; set; }
         public List<Card> cardsOnPerson { get; set; }
         
 
@@ -54,10 +56,14 @@ namespace Models.Poker
             Card previousCard = new Card();
             int straightcounter = 1;
             int paircounter = 0;
-            int flushcounter = 0;
+            int flushcounter = 1;
             bool possibletwopairs = false;
             bool jack = false;
             bool ace = false;
+            bool twopairs = false;
+            bool singlepair = false;
+
+            
 
             foreach (Card card in hand)
             {
@@ -71,14 +77,24 @@ namespace Models.Poker
                     {
                         straightcounter++;
                     }
+
+
                     if (previousCard.Value == card.Value)
                     {
                         paircounter++;
+                        this.pairValue = previousCard.Value;
+                        if (possibletwopairs == true)
+                        {
+                            twopairs = true;
+                            this.pairValue = previousCard.Value;
+                        }
                     }
 
-                    if (previousCard.Value != card.Value && paircounter == 1)
+                    if(paircounter == 1 && previousCard.Value != card.Value)
                     {
                         possibletwopairs = true;
+                        singlepair = true;
+                        this.pairValue = previousCard.Value;
                         paircounter = 0;
                     }
 
@@ -101,12 +117,14 @@ namespace Models.Poker
                 previousCard = card;
 
             }
+            
+
 
             if(paircounter == 0 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.HighCard;
             }
-            if(paircounter == 1 && straightcounter < 5 && flushcounter < 5)
+            if(singlepair && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.Pair;
             }
@@ -114,7 +132,7 @@ namespace Models.Poker
             {
                 this.value = HandType.ThreeOfAKind;
             }
-            if (possibletwopairs == true && paircounter == 2 && straightcounter < 5 && flushcounter < 5)
+            if (twopairs && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.TwoPairs;
             }
@@ -130,7 +148,7 @@ namespace Models.Poker
             {
                 this.value = HandType.Flush;
             }
-            if (possibletwopairs == true && paircounter >= 3 && straightcounter < 5 && flushcounter < 5)
+            if (possibletwopairs == true && paircounter >= 2 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.FullHouse;
             }
@@ -138,7 +156,7 @@ namespace Models.Poker
             {
                 this.value = HandType.FourOfAKind;
             }
-            if(straightcounter >= 5 && flushcounter >= 5)
+            if(straightcounter >= 5 && flushcounter >= 4)
             {
                 this.value = HandType.StraightFlush;
             }
