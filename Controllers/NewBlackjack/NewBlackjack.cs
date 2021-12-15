@@ -126,12 +126,12 @@ namespace Controllers.NewBlackjack
         }
 
         private static void CheckForPlayerNatural(int bet)
-        {
+        { 
             if (playerState == "Natural" && dealerState != "Natural")
             {
-                gamestate = GameState.Payout;
                 result = $"Congrats you got a blackjack! You won ${bet * 2.5}";
-                playerBalance += (decimal)(bet * 2.5);
+                playerBalance += (decimal)(bet * 1.5);
+                gamestate = GameState.Payout;
             }
         }
 
