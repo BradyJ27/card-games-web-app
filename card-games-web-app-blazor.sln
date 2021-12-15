@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31911.196
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "card-games-web-app-blazor", "card-games-web-app-blazor.csproj", "{A01AE33B-4F5D-41E9-9A89-015F6278739F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blackjack.Test", "Blackjack.Test\Blackjack.Test.csproj", "{717C91F1-45B0-4C29-B770-ECEDFBA48B35}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A01AE33B-4F5D-41E9-9A89-015F6278739F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{717C91F1-45B0-4C29-B770-ECEDFBA48B35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{717C91F1-45B0-4C29-B770-ECEDFBA48B35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{717C91F1-45B0-4C29-B770-ECEDFBA48B35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{717C91F1-45B0-4C29-B770-ECEDFBA48B35}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
