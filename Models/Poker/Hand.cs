@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Models.Poker.Enums
+namespace Models.Poker
 {
     public class Hand
     {
@@ -15,6 +15,8 @@ namespace Models.Poker.Enums
 
         public List<Card> hand { get; set; } = new List<Card>();
         public HandType value { get; set; }
+        
+        
 
         public Hand(List<Card> playerHand, List<Card> communityCards)
         {
@@ -29,8 +31,8 @@ namespace Models.Poker.Enums
 
             SortCards();
             CalculateHand();
+            
         }
-
 
         public enum HandType
         {
@@ -60,18 +62,15 @@ namespace Models.Poker.Enums
             {
                 
 
-                if(previousCard.Value == default)
+                if(previousCard.Value != default)
                 {
-                    previousCard = card;
-                }
-                else
-                {
+               
+
                     if (previousCard.Value == card.Value - 1)
                     {
                         straightcounter++;
                     }
-
-                    if (previousCard.Value == card.Value)
+                    else if (previousCard.Value == card.Value)
                     {
                         paircounter++;
                     }
@@ -98,6 +97,7 @@ namespace Models.Poker.Enums
                     }
 
                 }
+                previousCard = card;
 
             }
 
@@ -105,11 +105,11 @@ namespace Models.Poker.Enums
             {
                 this.value = HandType.HighCard;
             }
-            else if(paircounter == 2 && straightcounter < 5 && flushcounter < 5)
+            else if(paircounter == 1 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.Pair;
             }
-            else if (paircounter == 3 && straightcounter < 5 && flushcounter < 5)
+            else if (paircounter == 2 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.ThreeOfAKind;
             }
