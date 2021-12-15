@@ -8,6 +8,9 @@
 
 @inject IJSRuntime jsRuntime
 
+<button type="button" @onclick="NavigateToRules" class="btn-dark" target="blank" style="float: right">
+    How To Play
+</button>
 
 @code {
     Dealer dealer = new Dealer(); //Creating a new Dealer also creates a new, shuffled CardDeck
@@ -48,15 +51,35 @@
         {
             player.Bet += amount;
             await Deal();
+            state = GameState.InProgress;
         }
-        else if(player.Funds >= amount && player.Cards.Count > 0 && communityCards.Cards.Count != 5)
+        else if (player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count < 3)
+        {
+            player.Bet += amount;
+            await DealCommunityCard();
+            await DealCommunityCard();
+            await DealCommunityCard();
+            state = GameState.InProgress;
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count >= 3 && communityCards.Cards.Count < 5)
+        {
+            player.Bet += amount;
+            await DealCommunityCard();
+            state = GameState.InProgress;
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count == 5)
+        {
+            player.Bet += amount;
+            EndHand();
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && communityCards.Cards.Count < 5)
         {
             await DealCommunityCard();
+            state = GameState.InProgress;
         }
         else
-        {  
+        {
             EndHand();
-            //await NewHand();
         }
     }
 
@@ -126,7 +149,7 @@
         //Reset the game area
         state = GameState.NotStarted;
 
-        
+
 
         //Begin a new hand!
         await InitializeHand();
@@ -138,13 +161,13 @@
         StateHasChanged();
     }
 
-    
+
 
     public void EndHand()
     {
         state = GameState.ShowDown;
 
-        
+
         playerhand = new Hand(player.Cards, communityCards.Cards);
         playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
         playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
@@ -155,7 +178,7 @@
         {
             //Player loses their bet
             player.Change -= player.Bet;
-            
+
         }
         else if ((playerhand.value > playertwohand.value) &&  (playerhand.value > playerthreehand.value))
         {
@@ -167,7 +190,7 @@
             //This is a "normal" win condition; the player has more than the dealer and neither are busted.
             playertwo.Change -= player.Bet;
         }
-        
+
         else //In all other situations, the player loses their bet.
         {
             player.Change += player.Bet * -1;
@@ -175,7 +198,7 @@
 
         //No matter what, the player's bet gets reset
         player.Bet = 0;
-        
+
     }
 }
 
@@ -209,35 +232,30 @@
     <br />
     <br />
     <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
+
 
     <div class="button-holder">
         @if (state == GameState.Betting)
         {
+            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
             @if (player.Funds < 10)
             {
                 <span class="display-3 text-danger; inherit-button-holder">Out of money!</span>
             }
-            @if (player.Funds >= 10)
+            @if (player.Funds - player.Bet >= 10)
             {
                 <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
             }
-            @if (player.Funds >= 20)
+            @if (player.Funds - player.Bet >= 20)
             {
                 <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
             }
-            @if (player.Funds >= 50)
+            @if (player.Funds - player.Bet >= 50)
             {
                 <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
             }
         }
-        </div>
+    </div>
 
         <div>
         @if (state == GameState.Payout)
@@ -254,39 +272,42 @@
     
 
 
-    <div>
-        @if (state == GameState.NotStarted || player.Funds < 10)
-        {
-            <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
-        }
-        @if (state == GameState.InProgress && !player.HasFolded)
-        {
-            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
-            @if (player.Funds < 10)
+        <div>
+            @if (state == GameState.NotStarted || player.Funds < 10)
             {
-                <span class="display-3 text-danger">Out of money!</span>
+                <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
             }
-            @if (player.Funds >= 10)
+            @if (state == GameState.InProgress && !player.HasFolded)
             {
-                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+                <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
+                @if (player.Funds < 10)
+                {
+                    <span class="display-3 text-danger">Out of money!</span>
+                }
+                @if (player.Funds >= 10 && communityCards.Cards.Count >= 3)
+                {
+                    <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+                }
+                @if (player.Funds >= 20 && communityCards.Cards.Count >= 3)
+                {
+                    <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+                }
+                @if (player.Funds >= 50 && communityCards.Cards.Count >= 3)
+                {
+                    <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+                }
+                @if (player.Bet > 0)
+                {
+                    <button class="btn btn-primary" @onclick="(() => Bet(0))">Check</button>
+                }
             }
-            @if (player.Funds >= 20)
+
+            @if (state == GameState.Payout)
             {
-                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+                <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
+
             }
-            @if (player.Funds >= 50)
-            {
-                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
-            }
-            //<button class="btn btn-primary" @onclick="(() => Check())">Check</button>
-        }
-       
-        @if (state == GameState.Payout)
-        {
-            <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
-            
-        }
-    </div>
+        </div>
 
     <div class="row">
     <div class="column" style="padding-right: 350px">
