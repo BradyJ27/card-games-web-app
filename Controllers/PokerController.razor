@@ -119,31 +119,7 @@
 
     }
 
-    public bool HasPairInOwnHand(Player player)
-    {
-        if(player.Cards[0].Value == player.Cards[1].Value)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-
-        }
-    }
-
-    public Card HighCardInOwnHand(Player player)
-    {
-        if(player.Cards[0].Value > player.Cards[1].Value)
-        {
-            return player.Cards[0];
-
-        }
-        else
-        {
-            return player.Cards[1];
-        }
-    }
+    
 
     public async Task DealCommunityCard()
     {

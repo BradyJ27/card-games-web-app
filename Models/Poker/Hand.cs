@@ -15,11 +15,12 @@ namespace Models.Poker
 
         public List<Card> hand { get; set; } = new List<Card>();
         public HandType value { get; set; }
-        
+        public List<Card> cardsOnPerson { get; set; }
         
 
         public Hand(List<Card> playerHand, List<Card> communityCards)
         {
+            this.cardsOnPerson = playerHand;
             foreach (Card card in playerHand)
             {
                 this.hand.Add(card);
@@ -51,7 +52,7 @@ namespace Models.Poker
         public void CalculateHand()
         {
             Card previousCard = new Card();
-            int straightcounter = 0;
+            int straightcounter = 1;
             int paircounter = 0;
             int flushcounter = 0;
             bool possibletwopairs = false;
@@ -70,12 +71,12 @@ namespace Models.Poker
                     {
                         straightcounter++;
                     }
-                    else if (previousCard.Value == card.Value)
+                    if (previousCard.Value == card.Value)
                     {
                         paircounter++;
                     }
 
-                    if (previousCard.Value != card.Value && paircounter == 2)
+                    if (previousCard.Value != card.Value && paircounter == 1)
                     {
                         possibletwopairs = true;
                         paircounter = 0;
@@ -101,51 +102,51 @@ namespace Models.Poker
 
             }
 
-            if(paircounter < 2 && straightcounter < 5 && flushcounter < 5)
+            if(paircounter == 0 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.HighCard;
             }
-            else if(paircounter == 1 && straightcounter < 5 && flushcounter < 5)
+            if(paircounter == 1 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.Pair;
             }
-            else if (paircounter == 2 && straightcounter < 5 && flushcounter < 5)
+            if (paircounter == 2 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.ThreeOfAKind;
             }
-            else if (possibletwopairs == true && paircounter == 2 && straightcounter < 5 && flushcounter < 5)
+            if (possibletwopairs == true && paircounter == 2 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.TwoPairs;
             }
-            else if (paircounter == 3 && straightcounter < 5 && flushcounter < 5)
+            if (paircounter == 3 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.ThreeOfAKind;
             }
-            else if (straightcounter >= 5 && flushcounter < 5)
+            if (straightcounter >= 5 && flushcounter < 5)
             {
                 this.value = HandType.Straight;
             }
-            else if (straightcounter < 5 && flushcounter >= 5)
+            if (straightcounter < 5 && flushcounter >= 5)
             {
                 this.value = HandType.Flush;
             }
-            else if (possibletwopairs == true && paircounter >= 3 && straightcounter < 5 && flushcounter < 5)
+            if (possibletwopairs == true && paircounter >= 3 && straightcounter < 5 && flushcounter < 5)
             {
                 this.value = HandType.FullHouse;
             }
-            else if (paircounter == 4)
+            if (paircounter == 4)
             {
                 this.value = HandType.FourOfAKind;
             }
-            else if(straightcounter >= 5 && flushcounter >= 5)
+            if(straightcounter >= 5 && flushcounter >= 5)
             {
                 this.value = HandType.StraightFlush;
             }
-            else if (straightcounter >= 5 && flushcounter >= 5)
+            if (straightcounter >= 5 && flushcounter >= 5)
             {
                 this.value = HandType.StraightFlush;
             }
-            else if (straightcounter >= 5 && flushcounter >= 5 && jack == true && ace == true)
+            if (straightcounter >= 5 && flushcounter >= 5 && jack == true && ace == true)
             {
                 this.value = HandType.StraightFlush;
             }
