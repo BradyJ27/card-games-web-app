@@ -5,15 +5,16 @@ using System.Threading.Tasks;
 
 namespace Models.Blackjack.Enums
 {
+    /* 
+     * This enumeration is a modfied version from a Black Jack game created by ExceptionNotFound.
+     * https://github.com/exceptionnotfound/BlazorGames/blob/master/BlazorGames/Models/Blackjack/Enums/GameState.cs
+     */
     public enum GameState
     {
         NotStarted, //Before first hand
         Betting, //During the betting phase
-        Dealing, //Only while dealer is dealing the initial deal
         InProgress, //After the initial deal, but before bets are paid out or collected.
-        Insurance, //During an insurance bet
         Payout, //After the hand is over, during while bets are paid out or collected.
-        Shuffling, //While the dealer is shuffling the cards
-        EscortedOut //Win condition; player won too much money so the casino is kicking them out.
-    }
+        EndOfGame, //Happens when the player runs out of money or player exits. 
+    }   
 }
