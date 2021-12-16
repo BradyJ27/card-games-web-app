@@ -56,16 +56,16 @@ namespace Models.Poker
 
         public enum HandType
         {
-            RoyalFlush = 0,
-            StraightFlush = 1,
-            FourOfAKind = 2,
-            FullHouse = 3,
-            Flush = 4,
-            Straight = 5,
-            ThreeOfAKind = 6,
-            TwoPairs = 7,
-            Pair = 8,
-            HighCard = 9,
+            RoyalFlush = 9,
+            StraightFlush = 8,
+            FourOfAKind = 7,
+            FullHouse = 6,
+            Flush = 5,
+            Straight = 4,
+            ThreeOfAKind = 3,
+            TwoPairs = 2,
+            Pair = 1,
+            HighCard = 0,
         }
 
         public void CalculateHand()
@@ -80,11 +80,32 @@ namespace Models.Poker
             bool twopairs = false;
             bool singlepair = false;
 
+            int spadecount = 0;
+            int clubcount = 0;
+            int heartcount = 0;
+            int diamondcount = 0;
             
 
             foreach (Card card in hand)
             {
-                
+                if(card.Suit == CardSuit.Hearts)
+                {
+                    heartcount++;
+                }
+                else if(card.Suit == CardSuit.Diamonds)
+                {
+                    diamondcount++;
+                }
+                else if(card.Suit == CardSuit.Clubs)
+                {
+                    clubcount++;
+                }
+                else if(card.Suit == CardSuit.Spades)
+                {
+                    spadecount++;
+                }
+
+
 
                 if(previousCard.Value != default)
                 {
@@ -95,6 +116,10 @@ namespace Models.Poker
                         straightcounter++;
                     }
 
+                    if (previousCard.Value != card.Value - 1 && straightcounter < 5)
+                    {
+                        straightcounter = 0;
+                    }
 
                     if (previousCard.Value == card.Value)
                     {
@@ -115,11 +140,6 @@ namespace Models.Poker
                         paircounter = 0;
                     }
 
-                    if (previousCard.Suit == card.Suit)
-                    {
-                        flushcounter++;
-                    }
-
                     if (card.Value == Common.Enums.CardValue.Jack)
                     {
                         jack = true;
@@ -130,61 +150,56 @@ namespace Models.Poker
                         ace = true;
                     }
 
+                    
+
                 }
                 previousCard = card;
 
             }
-            
 
+           
 
-            if(paircounter == 0 && straightcounter < 5 && flushcounter < 5)
+            if(paircounter == 0)
             {
                 this.value = HandType.HighCard;
             }
-            if(singlepair && straightcounter < 5 && flushcounter < 5)
+            if(singlepair)
             {
                 this.value = HandType.Pair;
             }
-            if (paircounter == 2 && straightcounter < 5 && flushcounter < 5)
+            if (paircounter == 2)
             {
                 this.value = HandType.ThreeOfAKind;
             }
-            if (twopairs && straightcounter < 5 && flushcounter < 5)
+            if (twopairs)
             {
                 this.value = HandType.TwoPairs;
             }
-            if (paircounter == 3 && straightcounter < 5 && flushcounter < 5)
-            {
-                this.value = HandType.ThreeOfAKind;
-            }
-            if (straightcounter >= 5 && flushcounter < 5)
+            if (straightcounter >= 5)
             {
                 this.value = HandType.Straight;
             }
-            if (straightcounter < 5 && flushcounter >= 5)
+            if (diamondcount >= 5 || heartcount >= 5 || spadecount >= 5 || clubcount >= 5)
             {
                 this.value = HandType.Flush;
             }
-            if (possibletwopairs == true && paircounter >= 2 && straightcounter < 5 && flushcounter < 5)
+            if (possibletwopairs == true && paircounter >= 2)
             {
                 this.value = HandType.FullHouse;
             }
-            if (paircounter == 4)
+            if (paircounter == 3)
             {
                 this.value = HandType.FourOfAKind;
             }
-            if(straightcounter >= 5 && flushcounter >= 4)
+            if(straightcounter >= 5 && flushcounter >= 5)
             {
                 this.value = HandType.StraightFlush;
             }
-            if (straightcounter >= 5 && flushcounter >= 5)
+            if (straightcounter >= 5 && this.value == HandType.Flush && jack == true && ace == true)
             {
-                this.value = HandType.StraightFlush;
+                this.value = HandType.RoyalFlush;
             }
-            if (straightcounter >= 5 && flushcounter >= 5 && jack == true && ace == true)
-            {
-                this.value = HandType.StraightFlush;
-            }
+
         }
 
         private void SortCards()

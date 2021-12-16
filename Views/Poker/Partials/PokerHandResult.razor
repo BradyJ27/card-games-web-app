@@ -24,19 +24,21 @@
 }
 else if (Player.isWinner)
 {
-    <h1 class="display-3 text-success">Win!</h1>
+    <h1 class="display-3 text-success">Player One Wins</h1>
+    <h1 class="display-3 text-black-50">With @PlayerHand.value</h1>
 }
 else if (PlayerTwo.isWinner)
 {
     <h1 class="display-3 text-danger">You Lose, Player Two Wins</h1>
+    <h1 class="display-3 text-black-50">With @PlayerTwoHand.value</h1>
 }
 else if (PlayerThree.isWinner)
 {
-    <h1 class="display-3 text-danger">You Lose, Player Two Wins</h1>
+    <h1 class="display-3 text-danger">You Lose, Player Three Wins</h1>
+    <h1 class="display-3 text-black-50"> With @PlayerThreeHand.value</h1>
 }
 else
 {
-    <h1 class="display-3 text-info">Lose</h1>
+    <h1 class="display-3 text-info">Could not determine winner</h1>
 }
 
-<h1 class="display-3 text-black-50">@PlayerHand.value</h1>

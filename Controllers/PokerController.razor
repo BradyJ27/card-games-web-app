@@ -91,7 +91,7 @@
         //Deal a card to each player. The dealer's card is not visible.
         await dealer.DealToPlayer(player);
         StateHasChanged();
-
+        /*
         var playerTwoCardOne = dealer.Deal();
         playerTwoCardOne.IsVisible = false;
         await playertwo.AddCard(playerTwoCardOne);
@@ -114,7 +114,30 @@
         playerThreeCardTwo.IsVisible = false;
         await playerthree.AddCard(playerThreeCardTwo);
         StateHasChanged();
+        */
 
+        var playerTwoCardOne = dealer.Deal();
+        playerTwoCardOne.IsVisible = true;
+        await playertwo.AddCard(playerTwoCardOne);
+        StateHasChanged();
+
+        var playerThreeCardOne = dealer.Deal();
+        playerThreeCardOne.IsVisible = true;
+        await playerthree.AddCard(playerThreeCardOne);
+        StateHasChanged();
+
+        await dealer.DealToPlayer(player);
+        StateHasChanged();
+
+        var playerTwoCardTwo = dealer.Deal();
+        playerTwoCardTwo.IsVisible = true;
+        await playertwo.AddCard(playerTwoCardTwo);
+        StateHasChanged();
+
+        var playerThreeCardTwo = dealer.Deal();
+        playerThreeCardTwo.IsVisible = true;
+        await playerthree.AddCard(playerThreeCardTwo);
+        StateHasChanged();
 
         state = GameState.InProgress;
 
@@ -153,6 +176,11 @@
         playertwo.ClearHand();
         playerthree.ClearHand();
         communityCards.ClearHand();
+
+        player.isWinner = false;
+        playertwo.isWinner = false;
+        playerthree.isWinner = false;
+
 
         //Reset the game area
         state = GameState.NotStarted;
@@ -243,12 +271,45 @@
                 return null;
             }
         }
+        else if((playerhand.value == playertwohand.value && playerhand.value == playerthreehand.value) && playerhand.value != Hand.HandType.HighCard)
+        {
+            if(playerhand.pairValue > playertwohand.pairValue && playerhand.pairValue > playerthreehand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.pairValue < playertwohand.pairValue && playertwohand.pairValue > playerthreehand.pairValue){
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else if(playerhand.pairValue < playerthreehand.pairValue && playertwohand.pairValue < playerthreehand.pairValue){
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+            else
+            {
+                return null;
+            }
+        }
         else if(playerhand.value == playertwohand.value && playerthreehand.value < playerhand.value)
         {
             if(playerhand.pairValue > playertwohand.pairValue)
             {
                 player.isWinner = true;
                 return player;
+            }
+            else if(playerhand.pairValue == playertwohand.pairValue)
+            {
+                if(playerhand.highCard > playertwohand.highCard)
+                {
+                    player.isWinner = true;
+                    return player;
+
+                }
+                else{
+                    playertwo.isWinner = true;
+                    return playertwo;
+                }
             }
             else
             {
@@ -263,28 +324,56 @@
                 player.isWinner = true;
                 return player;
             }
+            else if(playerhand.pairValue == playerthreehand.pairValue)
+            {
+                if(playerhand.highCard > playerthreehand.highCard)
+                {
+                    player.isWinner = true;
+                    return player;
+
+                }
+                else{
+                    playerthree.isWinner = true;
+                    return playerthree;
+                }
+            }
             else
             {
                 playerthree.isWinner = true;
                 return playerthree;
             }
         }
-        else if(playertwohand.value == playerthreehand.value && playertwohand.value < playerhand.value)
+
+        else if(playertwohand.value == playerthreehand.value && playertwohand.value > playerhand.value)
         {
             if(playertwohand.pairValue > playerthreehand.pairValue)
             {
                 playertwo.isWinner = true;
                 return playertwo;
             }
+            else if(playertwohand.pairValue == playerthreehand.pairValue)
+            {
+                if(playertwohand.highCard > playerthreehand.highCard)
+                {
+                    playertwo.isWinner = true;
+                    return playertwo;
+
+                }
+                else{
+                    playerthree.isWinner = true;
+                    return playerthree;
+                }
+            }
             else
             {
                 playerthree.isWinner = true;
                 return playerthree;
             }
         }
+
         else{
-            player.isWinner = true;
-            return player;
+
+            return null;
         }
     }
 }
