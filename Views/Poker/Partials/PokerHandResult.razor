@@ -2,73 +2,38 @@
 @using Models.Poker.Enums
 
 @code {
+  
+    [Parameter]
+    public Person Player { get; set; }
+    [Parameter]
+    public Person PlayerTwo { get; set; }
+    [Parameter]
+    public Person PlayerThree { get; set; }
     [Parameter]
     public Hand PlayerHand { get; set; }
-
     [Parameter]
     public Hand PlayerTwoHand { get; set; }
-
     [Parameter]
     public Hand PlayerThreeHand { get; set; }
 
-    [Parameter]
-    public Person Player { get; set; }
-
-
-    public Card HighCardInOwnHand(Hand playerHand)
-    {
-        if(playerHand.cardsOnPerson[0].Value > playerHand.cardsOnPerson[1].Value)
-        {
-            return playerHand.cardsOnPerson[0];
-
-        }
-        else
-        {
-            return playerHand.cardsOnPerson[1];
-        }
-    }
-
-    
-    public bool IsTie()
-    {
-        if(PlayerHand.value == PlayerTwoHand.value && PlayerHand.value == PlayerThreeHand.value){
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
 }
 
 @if (Player.HasFolded)
 {
     <h1 class="display-3" style="color: gray">Fold!</h1>
 }
-else if (PlayerHand.value > PlayerTwoHand.value && PlayerHand.value > PlayerThreeHand.value)
+else if (Player.isWinner)
 {
     <h1 class="display-3 text-success">Win!</h1>
 }
-else if (PlayerHand.value < PlayerTwoHand.value && PlayerHand.value < PlayerThreeHand.value)
+else if (PlayerTwo.isWinner)
 {
-    <h1 class="display-3 text-danger">Lose...</h1>
+    <h1 class="display-3 text-danger">You Lose, Player Two Wins</h1>
 }
-else if (IsTie())
+else if (PlayerThree.isWinner)
 {
-    if(PlayerHand.pairValue > PlayerTwoHand.pairValue && PlayerHand.pairValue > PlayerThreeHand.pairValue)
-    {
-        <h1 class="display-3 text-success">Win!</h1>
-    }
-    else
-    {
-        <h1 class="display-3 text-danger">Lose...</h1>
-    }
+    <h1 class="display-3 text-danger">You Lose, Player Two Wins</h1>
 }
-else if (IsTie() && (HighCardInOwnHand(PlayerHand).Value > HighCardInOwnHand(PlayerTwoHand).Value && HighCardInOwnHand(PlayerHand).Value > HighCardInOwnHand(PlayerThreeHand).Value))
-{
-    <h1 class="display-3 text-success">Win!</h1>
-}
-
 else
 {
     <h1 class="display-3 text-info">Lose</h1>

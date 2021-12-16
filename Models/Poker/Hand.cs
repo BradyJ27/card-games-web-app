@@ -15,6 +15,7 @@ namespace Models.Poker
         }
 
         public List<Card> hand { get; set; } = new List<Card>();
+        public CardValue highCard { get; set; }
         public HandType value { get; set; }
         public CardValue pairValue { get; set; }
         public List<Card> cardsOnPerson { get; set; }
@@ -23,6 +24,9 @@ namespace Models.Poker
         public Hand(List<Card> playerHand, List<Card> communityCards)
         {
             this.cardsOnPerson = playerHand;
+
+            
+
             foreach (Card card in playerHand)
             {
                 this.hand.Add(card);
@@ -34,7 +38,20 @@ namespace Models.Poker
 
             SortCards();
             CalculateHand();
-            
+            HighCardInOwnHand();
+        }
+
+        public void HighCardInOwnHand()
+        {
+            if (this.cardsOnPerson[0].Value > this.cardsOnPerson[1].Value)
+            {
+                this.highCard = this.cardsOnPerson[0].Value;
+
+            }
+            else
+            {
+                this.highCard = this.cardsOnPerson[1].Value;
+            }
         }
 
         public enum HandType

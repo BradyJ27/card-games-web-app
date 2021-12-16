@@ -8,7 +8,7 @@ namespace Models.Poker
     public class Person
     {
         public List<Card> Cards { get; set; } = new List<Card>();
-
+        public bool isWinner { get; set; } = false;
 
 
         public async Task AddCard(Card card)

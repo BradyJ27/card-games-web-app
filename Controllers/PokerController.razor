@@ -35,7 +35,7 @@
 
     public async Task InitializeHand()
     {
-        
+
 
         if (dealer.Deck.Count < 13)
         {
@@ -133,12 +133,12 @@
 
     }
 
-    public async Task Fold()
+    public void Fold()
     {
         player.HasFolded = true;
         EndHand();
         state = GameState.Payout;
-        
+
 
     }
 
@@ -180,7 +180,7 @@
         playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
         playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
 
-
+        Person Winner = DetermineWinner(playerhand, playertwohand, playerthreehand);
 
         if (player.HasFolded)
         {
@@ -188,25 +188,104 @@
             player.Change -= player.Bet;
 
         }
-        else if ((playerhand.value > playertwohand.value) &&  (playerhand.value > playerthreehand.value))
+        else if (player.isWinner)
         {
-            //If the player is not busted but the dealer is, the player gets the amount of their bet back, plus the bet again.
+
             player.Change += player.Bet;
         }
-        else if (playerhand.value < playertwohand.value && playerhand.value < playerthreehand.value)
+        else if (!player.isWinner)
         {
-            //This is a "normal" win condition; the player has more than the dealer and neither are busted.
-            playertwo.Change -= player.Bet;
+            //This is a "normal" lose condition
+            player.Change -= player.Bet;
         }
 
         else //In all other situations, the player loses their bet.
         {
-            player.Change += player.Bet * -1;
+            player.Change -= player.Bet;
         }
 
         //No matter what, the player's bet gets reset
         player.Bet = 0;
-        
+
+    }
+
+    public Person DetermineWinner(Hand playerhand, Hand playertwohand, Hand playerthreehand)
+    {
+        if(playerhand.value > playertwohand.value && playerhand.value > playerthreehand.value){
+            player.isWinner = true;
+            return player;
+        }
+        else if(playerhand.value < playertwohand.value && playertwohand.value > playerthreehand.value){
+            playertwo.isWinner = true;
+            return playertwo;
+        }
+        else if(playerhand.value < playerthreehand.value && playertwohand.value < playerthreehand.value){
+            playerthree.isWinner = true;
+            return playerthree;
+        }
+        else if((playerhand.value == playertwohand.value && playerhand.value == playerthreehand.value) && playerhand.value == Hand.HandType.HighCard)
+        {
+            if(playerhand.highCard > playertwohand.highCard && playerhand.highCard > playerthreehand.highCard)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.highCard < playertwohand.highCard && playertwohand.highCard > playerthreehand.highCard){
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else if(playerhand.highCard < playerthreehand.highCard && playertwohand.highCard < playerthreehand.highCard){
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if(playerhand.value == playertwohand.value && playerthreehand.value < playerhand.value)
+        {
+            if(playerhand.pairValue > playertwohand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else
+            {
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+        }
+        else if(playerhand.value == playerthreehand.value && playertwohand.value < playerhand.value)
+        {
+            if(playerhand.pairValue > playerthreehand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else
+            {
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+        }
+        else if(playertwohand.value == playerthreehand.value && playertwohand.value < playerhand.value)
+        {
+            if(playertwohand.pairValue > playerthreehand.pairValue)
+            {
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else
+            {
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+        }
+        else{
+            player.isWinner = true;
+            return player;
+        }
     }
 }
 
@@ -219,17 +298,16 @@
 
 
     
-        @if(communityCards.Cards.Count != 0)
-        {
-    
-            <div ><strong>Community Cards
-                </strong>
-            </div>
-            
-            <div>
-                <PokerHand Cards="communityCards.Cards"/>
-            </div>
-        }
+        @if (communityCards.Cards.Count != 0)
+    {
+        <div ><strong>Community Cards
+            </strong>
+        </div>
+
+        <div>
+            <PokerHand Cards="communityCards.Cards"/>
+        </div>
+    }
 
     <br />
     <br />
@@ -245,7 +323,7 @@
     <div class="button-holder">
         @if (state == GameState.Betting)
         {
-           
+
             @if (player.Funds < 10)
             {
                 <span class="display-3 text-danger; inherit-button-holder">Out of money!</span>
@@ -265,89 +343,89 @@
         }
     </div>
 
-        <div>
+    <div>
         @if (state == GameState.Payout)
         {
-            <PokerHandResult PlayerHand="playerhand" PlayerTwoHand="playertwohand" PlayerThreeHand="playerthreehand" Player="player" />
+            <PokerHandResult Player="player" PlayerTwo="playertwo" PlayerThree="playerthree" PlayerHand="playerhand" PlayerTwoHand="playertwohand" PlayerThreeHand="playerthreehand"/>
         }
         @if (state == GameState.Dealing || state == GameState.Shuffling
-        || state == GameState.InProgress)
+            || state == GameState.InProgress)
         {
             <PokerMessage State="state" Bet="player.Bet" />
         }
     </div>
 
-    
 
 
 
-        <div>
-            @if (state == GameState.NotStarted || player.Funds < 10)
+
+    <div>
+        @if (state == GameState.NotStarted || player.Funds < 10)
+        {
+            <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
+        }
+        @if (state == GameState.InProgress && !player.HasFolded)
+        {
+            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
+            @if (player.Funds < 10)
             {
-                <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
+                <span class="display-3 text-danger">Out of money!</span>
             }
-            @if (state == GameState.InProgress && !player.HasFolded)
+            @if (player.Funds >= 10 && communityCards.Cards.Count >= 3)
             {
-                <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
-                @if (player.Funds < 10)
-                {
-                    <span class="display-3 text-danger">Out of money!</span>
-                }
-                @if (player.Funds >= 10 && communityCards.Cards.Count >= 3)
-                {
-                    <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
-                }
-                @if (player.Funds >= 20 && communityCards.Cards.Count >= 3)
-                {
-                    <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
-                }
-                @if (player.Funds >= 50 && communityCards.Cards.Count >= 3)
-                {
-                    <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
-                }
-                @if (player.Bet > 0)
-                {
-                    <button class="btn btn-primary" @onclick="(() => Bet(0))">Check</button>
-                }
+                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
             }
+            @if (player.Funds >= 20 && communityCards.Cards.Count >= 3)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+            }
+            @if (player.Funds >= 50 && communityCards.Cards.Count >= 3)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+            }
+            @if (player.Bet > 0)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(0))">Check</button>
+            }
+        }
 
-            @if (state == GameState.Payout)
-            {
-                <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
-            }
-        </div>
+        @if (state == GameState.Payout)
+        {
+            <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
+        }
+    </div>
 
     <div class="row">
-    <div class="column" style="padding-right: 350px">
-        <PokerScore State="state" Player="player" />
-        
-       <PokerHand Cards="player.Cards" />
-    
+        <div class="column" style="padding-right: 350px">
+            <PokerScore State="state" Player="player" />
+
+            <PokerHand Cards="player.Cards" />
+
+        </div>
+
+        <div class="column" style="padding-right: 350px">
+            <PokerHand Cards = "playertwo.Cards" />
+        </div>
+
+        <div class="column">
+            <PokerHand Cards = "playerthree.Cards" />
+        </div>
+
     </div>
 
-    <div class="column" style="padding-right: 350px">
-        <PokerHand Cards = "playertwo.Cards" />
-    </div>
-
-    <div class="column">
-        <PokerHand Cards = "playerthree.Cards" />
-    </div>
-         
-    </div>
 
 
-    
 
 
-    @if(state == GameState.ShowDown)
+    @if (state == GameState.ShowDown)
     {
-        for(int i=0; i<2; i++)
-            {
-                playertwo.Cards[i].IsVisible = true;
-                playerthree.Cards[i].IsVisible = true;
-            }
-            
-          StateHasChanged();
+        for (int i = 0; i < 2; i++)
+        {
+            playertwo.Cards[i].IsVisible = true;
+            playerthree.Cards[i].IsVisible = true;
+        }
+
+        StateHasChanged();
         state = GameState.Payout;
     }
 
