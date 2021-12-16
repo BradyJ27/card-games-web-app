@@ -91,7 +91,7 @@
         //Deal a card to each player. The dealer's card is not visible.
         await dealer.DealToPlayer(player);
         StateHasChanged();
-        /*
+        
         var playerTwoCardOne = dealer.Deal();
         playerTwoCardOne.IsVisible = false;
         await playertwo.AddCard(playerTwoCardOne);
@@ -114,31 +114,7 @@
         playerThreeCardTwo.IsVisible = false;
         await playerthree.AddCard(playerThreeCardTwo);
         StateHasChanged();
-        */
-
-        var playerTwoCardOne = dealer.Deal();
-        playerTwoCardOne.IsVisible = true;
-        await playertwo.AddCard(playerTwoCardOne);
-        StateHasChanged();
-
-        var playerThreeCardOne = dealer.Deal();
-        playerThreeCardOne.IsVisible = true;
-        await playerthree.AddCard(playerThreeCardOne);
-        StateHasChanged();
-
-        await dealer.DealToPlayer(player);
-        StateHasChanged();
-
-        var playerTwoCardTwo = dealer.Deal();
-        playerTwoCardTwo.IsVisible = true;
-        await playertwo.AddCard(playerTwoCardTwo);
-        StateHasChanged();
-
-        var playerThreeCardTwo = dealer.Deal();
-        playerThreeCardTwo.IsVisible = true;
-        await playerthree.AddCard(playerThreeCardTwo);
-        StateHasChanged();
-
+       
         state = GameState.InProgress;
 
 

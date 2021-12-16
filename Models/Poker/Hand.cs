@@ -140,6 +140,8 @@ namespace Models.Poker
                         paircounter = 0;
                     }
 
+                   
+
                     if (card.Value == Common.Enums.CardValue.Jack)
                     {
                         jack = true;
