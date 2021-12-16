@@ -436,4 +436,7 @@
     <Content Remove="Blackjack.Test\bin\Debug\netcoreapp3.1\Blackjack.Test.runtimeconfig.json" />
     <Content Remove="Blackjack.Test\bin\Debug\netcoreapp3.1\Blackjack.Test.runtimeconfig.dev.json" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\BlackjackController\" />
+  </ItemGroup>
 </Project>

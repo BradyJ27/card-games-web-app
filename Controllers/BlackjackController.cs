@@ -7,7 +7,7 @@ using BlackjackLibrary.EventArgs;
 using BlackjackLibrary.Models;
 using Models.Blackjack.Enums;
 
-namespace Controllers.NewBlackjack
+namespace Controllers.BlackjackController
 {
 	public class BlackjackController
 	{
