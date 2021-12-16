@@ -21,6 +21,7 @@ making sure to check the ".NET Core 3.1" when installing.
 - In the solution explorer, double click the .sln file.
 - On the top toolbar, click "IIS Express" next to the green play button. 
 - The website will open in a browser, you should now be able to use the website like normal.
+Note: In case of error, try to download the NuGet package called "IvanPrgomet.BlackjackLibrary"
 
 ## Games
 
@@ -40,3 +41,7 @@ refer to the "How To Play" page on the poker page.
 This project was made using C# and ASP.NET Core 3.1, along with a front end of Blazor. We decided that we did not need
 a database on the backend, as the data that we deal with is small enough to store in memory. None of the developers
 had previously worked with C#, so we decided to keep our tech stack as simple as possible. 
+
+## Testing
+
+To run blackjack tests, you can click `Test` -> `Run All Tests` in Visual Studio.
