@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
@@ -432,5 +435,8 @@
     <Content Remove="Blackjack.Test\bin\Debug\netcoreapp3.1\Blackjack.Test.deps.json" />
     <Content Remove="Blackjack.Test\bin\Debug\netcoreapp3.1\Blackjack.Test.runtimeconfig.json" />
     <Content Remove="Blackjack.Test\bin\Debug\netcoreapp3.1\Blackjack.Test.runtimeconfig.dev.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\BlackjackController\" />
   </ItemGroup>
 </Project>

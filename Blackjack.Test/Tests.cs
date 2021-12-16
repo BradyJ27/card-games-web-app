@@ -1,5 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Controllers.NewBlackjack;
+using Controllers.BlackjackController;
 using Models.Blackjack.Enums;
 
 namespace Blackjack.Test

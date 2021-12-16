@@ -1,0 +1,507 @@
+﻿@page "/poker"
+
+@using Models.Poker;
+@using Models.Poker.Enums;
+@using Views;
+@using Views.Poker.Partials;
+@using card_games_web_app_blazor.Views.Poker.Partials
+
+@inject IJSRuntime jsRuntime
+
+<button type="button" @onclick="NavigateToRules" class="btn-dark" target="blank" style="float: right">
+    How To Play
+</button>
+
+@code {
+    Dealer dealer = new Dealer(); //Creating a new Dealer also creates a new, shuffled CardDeck
+    Player player = new Player();
+    Player playertwo = new Player();
+    Player playerthree = new Player();
+    CommunityCards communityCards = new CommunityCards();
+    Hand playerhand;
+    Hand playertwohand;
+    Hand playerthreehand;
+    GameState state = GameState.NotStarted;
+
+
+
+    public async Task NavigateToRules()
+    {
+        string url = "/pokerrules";
+        await jsRuntime.InvokeAsync<object>("open", url, "_blank");
+    }
+
+
+
+    public async Task InitializeHand()
+    {
+
+
+        if (dealer.Deck.Count < 13)
+        {
+            state = GameState.Shuffling;
+            dealer.Deck = new CardDeck();
+            await Delay(1000);
+        }
+
+        state = GameState.Betting;
+    }
+
+    public async Task Bet(decimal amount)
+    {
+        if (player.Funds >= amount && player.Cards.Count == 0)
+        {
+            player.Bet += amount;
+            await Deal();
+            state = GameState.InProgress;
+        }
+        else if (player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count < 3)
+        {
+            player.Bet += amount;
+            await DealCommunityCard();
+            await DealCommunityCard();
+            await DealCommunityCard();
+            state = GameState.InProgress;
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count >= 3 && communityCards.Cards.Count < 5)
+        {
+            player.Bet += amount;
+            await DealCommunityCard();
+            state = GameState.InProgress;
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && player.Bet <= player.Funds && communityCards.Cards.Count == 5)
+        {
+            player.Bet += amount;
+            EndHand();
+        }
+        else if(player.Funds >= amount && player.Cards.Count > 0 && communityCards.Cards.Count < 5)
+        {
+            await DealCommunityCard();
+            state = GameState.InProgress;
+        }
+        else
+        {
+            EndHand();
+        }
+    }
+
+    public async Task Deal()
+    {
+        state = GameState.Dealing;
+        //Deal a card to each player. The dealer's card is not visible.
+        await dealer.DealToPlayer(player);
+        StateHasChanged();
+        
+        var playerTwoCardOne = dealer.Deal();
+        playerTwoCardOne.IsVisible = false;
+        await playertwo.AddCard(playerTwoCardOne);
+        StateHasChanged();
+
+        var playerThreeCardOne = dealer.Deal();
+        playerThreeCardOne.IsVisible = false;
+        await playerthree.AddCard(playerThreeCardOne);
+        StateHasChanged();
+
+        await dealer.DealToPlayer(player);
+        StateHasChanged();
+
+        var playerTwoCardTwo = dealer.Deal();
+        playerTwoCardTwo.IsVisible = false;
+        await playertwo.AddCard(playerTwoCardTwo);
+        StateHasChanged();
+
+        var playerThreeCardTwo = dealer.Deal();
+        playerThreeCardTwo.IsVisible = false;
+        await playerthree.AddCard(playerThreeCardTwo);
+        StateHasChanged();
+       
+        state = GameState.InProgress;
+
+
+    }
+
+
+
+    public async Task DealCommunityCard()
+    {
+        var communitycard = dealer.Deal();
+        await communityCards.AddCard(communitycard);
+
+
+        StateHasChanged();
+
+    }
+
+    public void Fold()
+    {
+        player.HasFolded = true;
+        EndHand();
+        state = GameState.Payout;
+
+
+    }
+
+    public async Task NewHand()
+    {
+        player.HasFolded = false;
+        //Payout the player's bets
+        player.Collect();
+
+        //Clear the hands
+        player.ClearHand();
+        playertwo.ClearHand();
+        playerthree.ClearHand();
+        communityCards.ClearHand();
+
+        player.isWinner = false;
+        playertwo.isWinner = false;
+        playerthree.isWinner = false;
+
+
+        //Reset the game area
+        state = GameState.NotStarted;
+
+
+
+        //Begin a new hand!
+        await InitializeHand();
+    }
+
+    public async Task Delay(int millis)
+    {
+        await Task.Delay(millis);
+        StateHasChanged();
+    }
+
+
+
+    public void EndHand()
+    {
+        state = GameState.ShowDown;
+
+
+        playerhand = new Hand(player.Cards, communityCards.Cards);
+        playertwohand = new Hand(playertwo.Cards, communityCards.Cards);
+        playerthreehand = new Hand(playerthree.Cards, communityCards.Cards);
+
+        Person Winner = DetermineWinner(playerhand, playertwohand, playerthreehand);
+
+        if (player.HasFolded)
+        {
+            //Player loses their bet
+            player.Change -= player.Bet;
+
+        }
+        else if (player.isWinner)
+        {
+
+            player.Change += player.Bet;
+        }
+        else if (!player.isWinner)
+        {
+            //This is a "normal" lose condition
+            player.Change -= player.Bet;
+        }
+
+        else //In all other situations, the player loses their bet.
+        {
+            player.Change -= player.Bet;
+        }
+
+        //No matter what, the player's bet gets reset
+        player.Bet = 0;
+
+    }
+
+    public Person DetermineWinner(Hand playerhand, Hand playertwohand, Hand playerthreehand)
+    {
+        if(playerhand.value > playertwohand.value && playerhand.value > playerthreehand.value){
+            player.isWinner = true;
+            return player;
+        }
+        else if(playerhand.value < playertwohand.value && playertwohand.value > playerthreehand.value){
+            playertwo.isWinner = true;
+            return playertwo;
+        }
+        else if(playerhand.value < playerthreehand.value && playertwohand.value < playerthreehand.value){
+            playerthree.isWinner = true;
+            return playerthree;
+        }
+        else if((playerhand.value == playertwohand.value && playerhand.value == playerthreehand.value) && playerhand.value == Hand.HandType.HighCard)
+        {
+            if(playerhand.highCard > playertwohand.highCard && playerhand.highCard > playerthreehand.highCard)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.highCard < playertwohand.highCard && playertwohand.highCard > playerthreehand.highCard){
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else if(playerhand.highCard < playerthreehand.highCard && playertwohand.highCard < playerthreehand.highCard){
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if((playerhand.value == playertwohand.value && playerhand.value == playerthreehand.value) && playerhand.value != Hand.HandType.HighCard)
+        {
+            if(playerhand.pairValue > playertwohand.pairValue && playerhand.pairValue > playerthreehand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.pairValue < playertwohand.pairValue && playertwohand.pairValue > playerthreehand.pairValue){
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else if(playerhand.pairValue < playerthreehand.pairValue && playertwohand.pairValue < playerthreehand.pairValue){
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else if(playerhand.value == playertwohand.value && playerthreehand.value < playerhand.value)
+        {
+            if(playerhand.pairValue > playertwohand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.pairValue == playertwohand.pairValue)
+            {
+                if(playerhand.highCard > playertwohand.highCard)
+                {
+                    player.isWinner = true;
+                    return player;
+
+                }
+                else{
+                    playertwo.isWinner = true;
+                    return playertwo;
+                }
+            }
+            else
+            {
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+        }
+        else if(playerhand.value == playerthreehand.value && playertwohand.value < playerhand.value)
+        {
+            if(playerhand.pairValue > playerthreehand.pairValue)
+            {
+                player.isWinner = true;
+                return player;
+            }
+            else if(playerhand.pairValue == playerthreehand.pairValue)
+            {
+                if(playerhand.highCard > playerthreehand.highCard)
+                {
+                    player.isWinner = true;
+                    return player;
+
+                }
+                else{
+                    playerthree.isWinner = true;
+                    return playerthree;
+                }
+            }
+            else
+            {
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+        }
+
+        else if(playertwohand.value == playerthreehand.value && playertwohand.value > playerhand.value)
+        {
+            if(playertwohand.pairValue > playerthreehand.pairValue)
+            {
+                playertwo.isWinner = true;
+                return playertwo;
+            }
+            else if(playertwohand.pairValue == playerthreehand.pairValue)
+            {
+                if(playertwohand.highCard > playerthreehand.highCard)
+                {
+                    playertwo.isWinner = true;
+                    return playertwo;
+
+                }
+                else{
+                    playerthree.isWinner = true;
+                    return playerthree;
+                }
+            }
+            else
+            {
+                playerthree.isWinner = true;
+                return playerthree;
+            }
+        }
+
+        else{
+
+            return null;
+        }
+    }
+}
+
+
+<h1 style="top: 0px; text-align: center" >Texas Holdem</h1>
+<body>
+     <div style="float: right">
+        <PokerFunds Funds="player.Funds" Change="player.Change" />
+    </div>
+
+
+    
+        @if (communityCards.Cards.Count != 0)
+    {
+        <div ><strong>Community Cards
+            </strong>
+        </div>
+
+        <div>
+            <PokerHand Cards="communityCards.Cards"/>
+        </div>
+    }
+
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+
+
+    <div class="button-holder">
+        @if (state == GameState.Betting)
+        {
+
+            @if (player.Funds < 10)
+            {
+                <span class="display-3 text-danger; inherit-button-holder">Out of money!</span>
+            }
+            @if (player.Funds - player.Bet >= 10)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+            }
+            @if (player.Funds - player.Bet >= 20)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+            }
+            @if (player.Funds - player.Bet >= 50)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+            }
+        }
+    </div>
+
+    <div>
+        @if (state == GameState.Payout)
+        {
+            <PokerHandResult Player="player" PlayerTwo="playertwo" PlayerThree="playerthree" PlayerHand="playerhand" PlayerTwoHand="playertwohand" PlayerThreeHand="playerthreehand"/>
+        }
+        @if (state == GameState.Dealing || state == GameState.Shuffling
+            || state == GameState.InProgress)
+        {
+            <PokerMessage State="state" Bet="player.Bet" />
+        }
+    </div>
+
+
+
+
+
+    <div>
+        @if (state == GameState.NotStarted || player.Funds < 10)
+        {
+            <button class="btn btn-secondary" @onclick="(() => InitializeHand())">Start Game</button>
+        }
+        @if (state == GameState.InProgress && !player.HasFolded)
+        {
+            <button class="btn btn-primary" @onclick="(() => Fold())">Fold</button>
+            @if (player.Funds < 10)
+            {
+                <span class="display-3 text-danger">Out of money!</span>
+            }
+            @if (player.Funds >= 10 && communityCards.Cards.Count >= 3)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(10))">Bet $10</button>
+            }
+            @if (player.Funds >= 20 && communityCards.Cards.Count >= 3)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(20))">Bet $20</button>
+            }
+            @if (player.Funds >= 50 && communityCards.Cards.Count >= 3)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(50))">Bet $50</button>
+            }
+            @if (player.Bet > 0)
+            {
+                <button class="btn btn-primary" @onclick="(() => Bet(0))">Check</button>
+            }
+        }
+
+        @if (state == GameState.Payout)
+        {
+            <button class="btn btn-secondary" @onclick="(() => NewHand())">Keep Going!</button>
+        }
+    </div>
+
+    <div class="row">
+        <div class="column" style="padding-right: 350px">
+            <PokerScore State="state" Player="player" />
+
+            <PokerHand Cards="player.Cards" />
+
+        </div>
+
+        <div class="column" style="padding-right: 350px">
+            <PokerHand Cards = "playertwo.Cards" />
+        </div>
+
+        <div class="column">
+            <PokerHand Cards = "playerthree.Cards" />
+        </div>
+
+    </div>
+
+
+
+
+
+    @if (state == GameState.ShowDown)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            playertwo.Cards[i].IsVisible = true;
+            playerthree.Cards[i].IsVisible = true;
+        }
+
+        StateHasChanged();
+        state = GameState.Payout;
+    }
+
+
+</body>
+   
+    
+    
+
+
+    
+    
+
+

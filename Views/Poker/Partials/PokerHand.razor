@@ -1,0 +1,13 @@
+﻿@using Models.Poker;
+
+@code
+{
+    [Parameter]
+    public List<Card> Cards { get; set; }
+}
+
+
+    @foreach (var card in Cards)
+    {
+        <PokerCard Card="card" />
+    }

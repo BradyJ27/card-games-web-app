@@ -1,0 +1,44 @@
+﻿@using Models.Poker;
+@using Models.Poker.Enums
+
+@code {
+  
+    [Parameter]
+    public Person Player { get; set; }
+    [Parameter]
+    public Person PlayerTwo { get; set; }
+    [Parameter]
+    public Person PlayerThree { get; set; }
+    [Parameter]
+    public Hand PlayerHand { get; set; }
+    [Parameter]
+    public Hand PlayerTwoHand { get; set; }
+    [Parameter]
+    public Hand PlayerThreeHand { get; set; }
+
+}
+
+@if (Player.HasFolded)
+{
+    <h1 class="display-3" style="color: gray">Fold!</h1>
+}
+else if (Player.isWinner)
+{
+    <h1 class="display-3 text-success">Player One Wins</h1>
+    <h1 class="display-3 text-black-50">With @PlayerHand.value</h1>
+}
+else if (PlayerTwo.isWinner)
+{
+    <h1 class="display-3 text-danger">You Lose, Player Two Wins</h1>
+    <h1 class="display-3 text-black-50">With @PlayerTwoHand.value</h1>
+}
+else if (PlayerThree.isWinner)
+{
+    <h1 class="display-3 text-danger">You Lose, Player Three Wins</h1>
+    <h1 class="display-3 text-black-50"> With @PlayerThreeHand.value</h1>
+}
+else
+{
+    <h1 class="display-3 text-info">Could not determine winner</h1>
+}
+
